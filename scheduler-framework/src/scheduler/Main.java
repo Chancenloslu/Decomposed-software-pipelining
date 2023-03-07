@@ -1,5 +1,8 @@
 package scheduler;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -14,7 +17,7 @@ public class Main {
 			resourcesName = args[1];
 		}
 		
-		ProblemReader dr = new ProblemReader(false);
+		ProblemReader dr = new ProblemReader(true);
 		if (args.length < 1) {
 			System.err.printf("Usage: scheduler dotfile%n");
 			System.exit(-1);
@@ -26,6 +29,15 @@ public class Main {
 		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
 		
 		Graph g = dr.parse(args[0]);
+		for (Node n: g.getNodes()) {
+			for (Node w: n.successors()){
+				System.out.println(n.id + "->" + w.id);
+			}
+			System.out.println("---------");
+		}
+		Tarjans tarjans = new Tarjans();
+		ArrayList<Set<Node>> sccs = tarjans.findSCCs(g);
+
 		System.out.printf("%s%n", g.diagnose());
 		
 		Scheduler s = new ASAP();
@@ -41,6 +53,14 @@ public class Main {
 		System.out.printf("cost = %s%n", sched.cost());
 		
 		sched.draw("schedules/ALAP_" + problemName, problemName, null);
+
+		s = new ListScheduler(rc);
+		sched = s.schedule(g);
+		System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
+		System.out.printf("cost = %s%n", sched.cost());
+		sched.draw("schedules/LS_" + problemName, problemName, resourcesName);
+
+		//s = new DSP();
 
 		/* exemplary validation of a schedule */
 

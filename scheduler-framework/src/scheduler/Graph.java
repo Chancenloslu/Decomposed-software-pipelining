@@ -8,11 +8,15 @@ import java.util.Formatter;
 
 public class Graph implements Iterable<Node> {
 	private HashMap<Node, Node> nodes;
-		
+
 	public Graph() {
 		nodes = new HashMap<Node, Node>();
 	}
-		
+
+	public Set<Node> getNodes() {
+		return nodes.keySet();
+	}
+
 	public Node add(final Node nd) {
 		if (!nodes.containsKey(nd)) {
 			nodes.put(nd, nd);

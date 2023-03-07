@@ -36,7 +36,7 @@ public class Schedule {
 	 * Map of nodes and the resource used for this node
 	 */
 	private final Map<Node, String> resources = new HashMap<>();
-		
+
 	public Schedule() {
 		nodes = new HashMap<Node, Interval>();
 		slots = new TreeMap<Integer, Set<Node>>();
