@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.*;
 
 public class Tarjans {
-    private Stack<Node> stack = new Stack<Node>();
+    private Stack<Node> stack;
     private HashMap<Node, Integer> dfn;
     private HashMap<Node, Integer> low;
     ArrayList<Node> nodes;
@@ -15,9 +15,11 @@ public class Tarjans {
         dfn = new HashMap<>();
         low = new HashMap<>();
         index = 0;
+        stack = new Stack<Node>();
         ArrayList<Set<Node>> sccs = new ArrayList<>();
         for (Node n: nodes) {
-            tarjan(n, sccs);
+            if (!dfn.containsKey(n))
+                tarjan(n, sccs);
         }
         return sccs;
     }
@@ -28,11 +30,11 @@ public class Tarjans {
         index++;
         stack.push(u);
 
-        Iterator it = u.successors().iterator();
+        Iterator it = u.allSuccessors().keySet().iterator();
         while (it.hasNext()) {
             Node v = (Node) it.next();
             //System.out.println(v.id);
-            if(!stack.contains(v)) {
+            if(!dfn.containsKey(v)) {
                 tarjan(v, sccs);
                 low.replace(u, Math.min(low.get(u), low.get(v)));
             }

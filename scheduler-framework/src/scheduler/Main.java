@@ -29,12 +29,6 @@ public class Main {
 		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
 		
 		Graph g = dr.parse(args[0]);
-		for (Node n: g.getNodes()) {
-			for (Node w: n.successors()){
-				System.out.println(n.id + "->" + w.id);
-			}
-			System.out.println("---------");
-		}
 		Tarjans tarjans = new Tarjans();
 		ArrayList<Set<Node>> sccs = tarjans.findSCCs(g);
 
