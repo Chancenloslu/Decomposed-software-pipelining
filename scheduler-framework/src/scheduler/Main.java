@@ -1,11 +1,9 @@
 package scheduler;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
+
 
 	public static void main(String[] args) {
 
@@ -31,8 +29,6 @@ public class Main {
 
 		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
 
-		Schedule sched;
-
 		//sched.draw("schedules/SR_" + problemName, problemName, null);
 		Graph g = dr.parse(args[0]);
 		System.out.printf("%s%n", g.diagnose());
@@ -40,6 +36,8 @@ public class Main {
 		Tarjans tarjans = new Tarjans();
 		ArrayList<Set<Node>> sccs = tarjans.findSCCs(g);
 
+		//store the info of deleted Edge for reconstructing LDDG later
+		HashMap<Node, Node> handledEdge = new HashMap<>();
 
 		Set<Node> nodes = g.getNodes(); //TODO:remove (used for debugging)
 
@@ -53,17 +51,20 @@ public class Main {
 			for ( int j = i+1; j < sccs.size(); j++){
 				otherNodes.addAll( sccs.get(j) );
 			}
+			//remove the edge between sccs
 			for(Node node : otherNodes){
 				for ( Node preNode : node.allPredecessors().keySet() ){
 					if ( (node.getPredWeight(preNode) > 0)
 					|| (sccCompare.contains(preNode)) ){
 						g.unlinkEdge(preNode, node);
+						handledEdge.put(preNode, node);
 					}
 				}
 				for ( Node sucNode : node.allSuccessors().keySet() ){
 					if ( (node.getSuccWeight(sucNode) > 0)
 					|| (sccCompare.contains(sucNode)) ){
 						g.unlinkEdge(node, sucNode);
+						handledEdge.put(node, sucNode);
 					}
 				}
 			}
@@ -90,6 +91,18 @@ public class Main {
 
 		sched.draw("schedules/LS_" + problemName, problemName, resourcesName);
 
+
+
+		int ll = sched.getSchedLength();
+		HashMap<Node, Integer> rn = new HashMap<>();
+		for (int i = 0; i < ll; i++) {
+			Set<Node> set = sched.nodes(i);
+			for (Node n: set) {
+				rn.put(n, i);
+			}
+		}
+
+		//HashMap<Integer, >
 		//s = new DSP();
 
 		/* exemplary validation of a schedule */

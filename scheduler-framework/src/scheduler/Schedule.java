@@ -43,7 +43,15 @@ public class Schedule {
 		sort_res = new HashMap<RT, TreeMap<Resource, Integer>>();
 		tsort_res = new HashMap<RT, Map<Integer, Resource>>();
 	}
-	
+
+	/**
+	 * get the length of this schedule
+	 * @return length
+	 */
+	public int getSchedLength() {
+		return slots.size();
+	}
+
 	/**
 	 * Add a node and to the schedule during the given interval
 	 * @param nd - the node to be scheduled
@@ -440,8 +448,9 @@ public class Schedule {
 							}
 							X = slot * scaleX;
 						
-						int nodeHeight = n.getDelay() * scaleY - 1;
-						int nodeY = Y - nodeHeight/2; 
+						//int nodeHeight = n.getDelay() * scaleY - 1;
+						int nodeHeight = 1 * scaleY - 1;		//TODO: need to remove (just for showing result of LS of step 3)
+						int nodeY = Y - nodeHeight/2;
 						int nodeWidth = 1;
 						String resourceTag = resources.get(n) != null ? resources.get(n) : "-";
 						dotFile.write(n + "[shape=\"record\", style=\"filled\", color=\"grey\", label=\"" + n + "|{" + n.getRT() + "|" + resourceTag + "|" + slot(n).lbound + "|" + slot(n).ubound + "}\", pos=\"" + X + "," + nodeY + "!\", height=\"" + nodeHeight + "\", width=\"" + nodeWidth + "\"];\n");
