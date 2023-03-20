@@ -60,10 +60,25 @@ public class Graph implements Iterable<Node> {
 	public Iterator<Node> iterator() {
 		return nodes.keySet().iterator();
 	}
-	
+
+	/**
+	 * unlinks two nodes completely
+	 * @param a first node
+	 * @param b second node
+	 */
 	public void unlink(Node a, Node b) {
 		a.remove(b);
 		b.remove(a);
+	}
+
+	/**
+	 * unlinks a directed edge between two nodes but not backwards edge if existing
+	 * @param from start of edge
+	 * @param to end of edge
+	 */
+	public void unlinkEdge(Node from, Node to) {
+		from.removeSuc(to);
+		to.removePre(from);
 	}
 	
 	public void handle(Node a, Node b) {
