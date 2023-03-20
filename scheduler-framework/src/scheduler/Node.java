@@ -99,6 +99,25 @@ public class Node {
 		unhandled_pred.remove(n);
 		return successors.remove(n)!=null || predecessors.remove(n)!=null;
 	}
+
+	/**
+	 * Removes a node from predecessors
+	 * @param n Node to remove
+	 * @return true if a node has been removed
+	 */
+	public boolean removePre(Node n) {
+		unhandled_pred.remove(n);
+		return predecessors.remove(n)!=null;
+	}
+	/**
+	 * Removes a node from successors
+	 * @param n Node to remove
+	 * @return true if a node has been removed
+	 */
+	public boolean removeSuc(Node n) {
+		unhandled_succ.remove(n);
+		return successors.remove(n)!=null;
+	}
 	
 	/**
 	 * Mark a node as handled. Useful during scheduling.
