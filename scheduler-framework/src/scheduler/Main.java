@@ -1,6 +1,8 @@
 package scheduler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class Main {
@@ -29,11 +31,39 @@ public class Main {
 		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
 		
 		Graph g = dr.parse(args[0]);
+		System.out.printf("%s%n", g.diagnose());
+
 		Tarjans tarjans = new Tarjans();
 		ArrayList<Set<Node>> sccs = tarjans.findSCCs(g);
 
-		System.out.printf("%s%n", g.diagnose());
-		
+		Set<Node> nodes = g.getNodes(); //TODO:remove (used for debugging)
+
+		//TODO add a data structure to save index shift (needed for LDDG)
+
+		for (int i=0; i < sccs.size()-1; i++){
+			// the SCC from which to remove edges
+			Set<Node> sccCompare = sccs.get(i);
+			// the other still SCCs which still have connections to other SCCs
+			Set<Node> otherNodes = new HashSet<>();
+			for ( int j = i+1; j < sccs.size(); j++){
+				otherNodes.addAll( sccs.get(j) );
+			}
+			for(Node node : otherNodes){
+				for ( Node preNode : node.allPredecessors().keySet() ){
+					if ( (node.getPredWeight(preNode) > 0)
+					|| (sccCompare.contains(preNode)) ){
+						g.unlinkEdge(preNode, node);
+					}
+				}
+				for ( Node sucNode : node.allSuccessors().keySet() ){
+					if ( (node.getSuccWeight(sucNode) > 0)
+					|| (sccCompare.contains(sucNode)) ){
+						g.unlinkEdge(node, sucNode);
+					}
+				}
+			}
+		}
+
 //		Scheduler s = new ASAP();
 //		Schedule sched = s.schedule(g);
 //		System.out.printf("%nASAP%n%s%n", sched.diagnose());
