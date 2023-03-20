@@ -20,6 +20,7 @@ public class Main {
 		}
 		
 		ProblemReader dr = new ProblemReader(true);
+		//ScheduleReader sr = new ScheduleReader();
 		if (args.length < 1) {
 			System.err.printf("Usage: scheduler dotfile%n");
 			System.exit(-1);
@@ -29,12 +30,16 @@ public class Main {
 		}
 
 		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
-		
+
+		Schedule sched;
+
+		//sched.draw("schedules/SR_" + problemName, problemName, null);
 		Graph g = dr.parse(args[0]);
 		System.out.printf("%s%n", g.diagnose());
 
 		Tarjans tarjans = new Tarjans();
 		ArrayList<Set<Node>> sccs = tarjans.findSCCs(g);
+
 
 		Set<Node> nodes = g.getNodes(); //TODO:remove (used for debugging)
 
