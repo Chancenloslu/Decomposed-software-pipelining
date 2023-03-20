@@ -18,6 +18,7 @@ public class Main {
 		}
 		
 		ProblemReader dr = new ProblemReader(true);
+		//ScheduleReader sr = new ScheduleReader();
 		if (args.length < 1) {
 			System.err.printf("Usage: scheduler dotfile%n");
 			System.exit(-1);
@@ -27,7 +28,10 @@ public class Main {
 		}
 
 		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
-		
+
+		Schedule sched;
+
+		//sched.draw("schedules/SR_" + problemName, problemName, null);
 		Graph g = dr.parse(args[0]);
 		Tarjans tarjans = new Tarjans();
 		ArrayList<Set<Node>> sccs = tarjans.findSCCs(g);
@@ -35,7 +39,7 @@ public class Main {
 		System.out.printf("%s%n", g.diagnose());
 		
 		Scheduler s = new ASAP();
-		Schedule sched = s.schedule(g);
+		sched = s.schedule(g);
 		System.out.printf("%nASAP%n%s%n", sched.diagnose());
 		System.out.printf("cost = %s%n", sched.cost());
 		
