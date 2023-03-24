@@ -4,7 +4,8 @@ import java.util.*;
 
 public class DSP {
     private RC rc;
-
+    HashMap<Node, Integer> rn;
+    HashMap<Node, Integer> cn;
     public DSP(RC rc) {
         this.rc = rc;
     }
@@ -15,6 +16,8 @@ public class DSP {
      * @param lddg
      */
     public void schedule(final Graph sg, Graph lddg) {
+        rn = new HashMap<>();
+        cn = new HashMap<>();
         /* get SCCs */
         Tarjans tarjans = new Tarjans();
         ArrayList<Set<Node>> sccs = tarjans.findSCCs(sg);
@@ -25,7 +28,6 @@ public class DSP {
         Set<Node> nodes = sg.getNodes(); //TODO:remove (used for debugging)
 
         //TODO add a data structure to save index shift (needed for LDDG)
-
         for (int i=0; i < sccs.size()-1; i++){
             // the SCC from which to remove edges
             Set<Node> sccCompare = sccs.get(i);
@@ -61,9 +63,8 @@ public class DSP {
         //sched.draw("schedules/LS_" + problemName, problemName, resourcesName);
 
         // store the ll and rn of nodes
-        int ll = sched.getSchedLength();
-        HashMap<Node, Integer> rn = new HashMap<>();
-        for (int i = 0; i < ll; i++) {
+        int ii = sched.getSchedLength();
+        for (int i = 0; i < ii; i++) {
             Set<Node> set = sched.nodes(i);
             for (Node n: set) {
                 rn.put(n, i + 1);
@@ -71,36 +72,57 @@ public class DSP {
         }
 
         // create a virtual source node
-        //Node vs = new Node("vs", RT.OTHER);
+        Node vs = new Node("vs", RT.OTHER);
         for (Node n: lddg) {
             for (Node succ: n.allSuccessors().keySet() ) {
                 int shift = n.getSuccWeight(succ);
                 double rn_from = rn.get(n);
                 double rn_to = rn.get(succ);
                 double d = n.getDelay();
-                int tau = (int) (Math.ceil((d - rn_to + rn_from)/ll)) - shift;
+                int tau = (int) (Math.ceil((d - rn_to + rn_from)/ii)) - shift;
                 n.append(succ, tau);
                 succ.prepend(n, tau);
             }
-            /*vs.append(n, 0);
-            n.prepend(vs, 0);*/
+            vs.append(n, 0);
+            n.prepend(vs, 0);
         }
-        //lddg.add(vs);
+        lddg.add(vs);
 
-        // label all nodes with sa(cn)
-        HashMap<Node, Integer> cn = new HashMap<>();
+        //TODO: label all nodes with sa(cn) using longest algorithm
+//        for (Node n : sched.nodes()) {
+//            System.out.println(n.toString() + " : " + lddg.dijkstra(n));
+//        }
+
         for (Node n : lddg) {
             cn.put(n, 1);
         }
-
-        // TODO： calculate the cn (still have problem)
-        /*for (Node n : lddg) {
-            if(n.root()) {
-                longestPath(n, cn);
+        // new label should not be larger than 2 I think
+        // still problem with longest path algorithm
+        for (Node n: lddg) {
+            for (Node pred: n.allPredecessors().keySet()) {
+                int label = n.getPredWeight(pred) + cn.get(pred);
+                if (label > cn.get(n)) {
+                    cn.put(n, label);
+                }
             }
-        }*/
+        }
 
-        System.out.println(cn);
+        // form the new body
+        Set<Node>[][] loop = new Set[ii][2];
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < ii; j++) {
+                loop[j][i] = new HashSet<>();
+            }
+        }
+        for (Node n: lddg) {
+            if(!n.equals(vs)) {
+                int row = rn.get(n) - 1;
+                int col = cn.get(n) - 1;
+                loop[row][col].add(n);
+            }
+        }
+        loopPrint(loop);
+
     }
 
     /**
@@ -119,5 +141,25 @@ public class DSP {
                 longestPath(succ, cn);
             }
         }
+    }
+
+    private void loopPrint (Set<Node>[][] loop) {
+        String leftAlignFormat = "| %-4s | %-30s | %-30s |%n";
+
+        System.out.format("+------+--------------------------------+--------------------------------+%n");
+        System.out.format("|      |            column1             |              column0           |%n");
+        System.out.format("+------+--------------------------------+--------------------------------+%n");
+
+        for (int i = 1; i <= loop.length; i++) {      //row index
+            String out1 = "row" + i;
+            String out2 = "";
+            String out3 = "";
+            for (Node n: loop[i-1][1])
+                out2 += n.toString() + ",";
+            for (Node n: loop[i-1][0])
+                out3 += n.toString() + ",";
+            System.out.format(leftAlignFormat, out1, out3, out2);
+        }
+        System.out.format("+------+--------------------------------+--------------------------------+%n");
     }
 }

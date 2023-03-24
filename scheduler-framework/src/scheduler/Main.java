@@ -55,6 +55,8 @@ public class Main {
 
 		DSP dsp = new DSP(rc);
 		dsp.schedule(g, lddg);
+
+
 		/* exemplary validation of a schedule */
 
 		Node conflictingNode = sched.validateDependencies();
