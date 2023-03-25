@@ -12,8 +12,8 @@ public class DSP {
 
     /**
      *
-     * @param sg
-     * @param lddg
+     * @param sg    from which we construct rn
+     * @param lddg  fromn which we construct cn
      */
     public void schedule(final Graph sg, Graph lddg) {
         rn = new HashMap<>();
@@ -21,9 +21,6 @@ public class DSP {
         /* get SCCs */
         Tarjans tarjans = new Tarjans();
         ArrayList<Set<Node>> sccs = tarjans.findSCCs(sg);
-
-        //store the info of deleted Edge for reconstructing LDDG later
-        HashMap<Node, Node> handledEdge = new HashMap<>();
 
         Set<Node> nodes = sg.getNodes(); //TODO:remove (used for debugging)
 
@@ -42,14 +39,12 @@ public class DSP {
                     if ( (node.getPredWeight(preNode) > 0)
                             || (sccCompare.contains(preNode)) ){
                         sg.unlinkEdge(preNode, node);
-                        handledEdge.put(preNode, node);
                     }
                 }
                 for ( Node sucNode : node.allSuccessors().keySet() ){
                     if ( (node.getSuccWeight(sucNode) > 0)
                             || (sccCompare.contains(sucNode)) ){
                         sg.unlinkEdge(node, sucNode);
-                        handledEdge.put(node, sucNode);
                     }
                 }
             }
@@ -89,27 +84,28 @@ public class DSP {
         lddg.add(vs);
 
         //TODO: label all nodes with sa(cn) using longest algorithm
-//        for (Node n : sched.nodes()) {
+//        for (Node n : lddg) {
 //            System.out.println(n.toString() + " : " + lddg.dijkstra(n));
 //        }
 
-        for (Node n : lddg) {
-            cn.put(n, 1);
-        }
         // new label should not be larger than 2 I think
         // still problem with longest path algorithm
+        int cl = 0;// coloumn length
         for (Node n: lddg) {
-            for (Node pred: n.allPredecessors().keySet()) {
-                int label = n.getPredWeight(pred) + cn.get(pred);
-                if (label > cn.get(n)) {
-                    cn.put(n, label);
-                }
+
+            HashMap<Node, Integer> handledNode = new HashMap<>();
+            handledNode.put(vs, 1);
+            longestPath(vs, n, handledNode);
+            int label = handledNode.get(n);
+            if (cl < label) {
+                cl = label;
             }
+            cn.put(n, label);
         }
 
         // form the new body
-        Set<Node>[][] loop = new Set[ii][2];
-        for (int i = 0; i < 2; i++) {
+        Set<Node>[][] loop = new Set[ii][cl];
+        for (int i = 0; i < cl; i++) {
             for (int j = 0; j < ii; j++) {
                 loop[j][i] = new HashSet<>();
             }
@@ -127,39 +123,57 @@ public class DSP {
 
     /**
      *
-     * @param n root node from which to calculate the label
-     * @param cn updated by every recursion
+     * @param src   source node
+     * @param dest  destination node
+     * @param handledNodes  handled nodes for taking notes during
      */
-    public void longestPath(Node n, HashMap<Node, Integer> cn) {
-        if (n.allSuccessors().isEmpty())
-            return ;
+    public void longestPath(Node src, Node dest, HashMap<Node, Integer> handledNodes) {
+        int res = 0;
+        int newlabel = 0;
+        if (src.allSuccessors().isEmpty())
+            return;
         else {
-            for (Node succ: n.allSuccessors().keySet()) {
-                int newLabel = cn.get(n) + succ.getPredWeight(n);
-                if (newLabel > cn.get(succ))
-                    cn.put(succ, newLabel);
-                longestPath(succ, cn);
+            for (Node succ: src.allSuccessors().keySet()) {
+                newlabel = succ.getPredWeight(src) + handledNodes.get(src);
+                if (!handledNodes.containsKey(succ)) {
+                    handledNodes.put(succ, newlabel);
+                } else {
+                    // not start from already handled nodes again
+                    if (newlabel > handledNodes.get(succ)) {
+                        handledNodes.put(succ, newlabel);
+                    }
+                    continue;
+                }
+                if (succ.equals(dest))
+                    return;
+                longestPath(succ, dest, handledNodes);
             }
         }
     }
 
     private void loopPrint (Set<Node>[][] loop) {
-        String leftAlignFormat = "| %-4s | %-30s | %-30s |%n";
+        int row = loop.length;
+        int col = loop[0].length;
+        String leftAlignFormat = "| %-4s ";
+        for (int i=0; i<col; i++)
+            leftAlignFormat += "| %-30s ";
+        leftAlignFormat += "|%n";
 
-        System.out.format("+------+--------------------------------+--------------------------------+%n");
-        System.out.format("|      |            column1             |              column0           |%n");
-        System.out.format("+------+--------------------------------+--------------------------------+%n");
+//        System.out.format("+------+--------------------------------+--------------------------------+%n");
+//        System.out.format("|      |            column1             |              column0           |%n");
+//        System.out.format("+------+--------------------------------+--------------------------------+%n");
 
-        for (int i = 1; i <= loop.length; i++) {      //row index
+        for (int i = 1; i <= row; i++) {      //row index
             String out1 = "row" + i;
             String out2 = "";
             String out3 = "";
-            for (Node n: loop[i-1][1])
-                out2 += n.toString() + ",";
-            for (Node n: loop[i-1][0])
-                out3 += n.toString() + ",";
-            System.out.format(leftAlignFormat, out1, out3, out2);
+            for (int j=1; j<col; j++) {
+                for (Node n : loop[i - 1][j - 1])
+                    out2 += n.toString() + ",";
+                out2 += "\t| ";
+            }
+            System.out.println(out1 + " | " + out2);
         }
-        System.out.format("+------+--------------------------------+--------------------------------+%n");
+//        System.out.format("+------+--------------------------------+--------------------------------+%n");
     }
 }
