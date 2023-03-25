@@ -89,21 +89,21 @@ public class DSP {
         lddg.add(vs);
 
         // label all nodes with sa(cn) using longest algorithm
-        int cl = 0;// column length
+        int columnLength = 0;
         for (Node n: lddg) {
             HashMap<Node, Integer> handledNode = new HashMap<>();
             handledNode.put(vs, 1);
             longestPath(vs, n, handledNode);
             int label = handledNode.get(n);
-            if (cl < label) {
-                cl = label;
+            if (columnLength < label) {
+                columnLength = label;
             }
             cn.put(n, label);
         }
 
         // form the new body
-        Set<Node>[][] loop = new Set[ii][cl];
-        for (int i = 0; i < cl; i++) {
+        Set<Node>[][] loop = new Set[ii][columnLength];
+        for (int i = 0; i < columnLength; i++) {
             for (int j = 0; j < ii; j++) {
                 loop[j][i] = new HashSet<>();
             }
