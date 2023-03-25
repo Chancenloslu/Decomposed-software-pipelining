@@ -6,8 +6,13 @@ public class DSP {
     private RC rc;
     HashMap<Node, Integer> rn;
     HashMap<Node, Integer> cn;
+    Integer ii;
     public DSP(RC rc) {
         this.rc = rc;
+    }
+
+    public Integer getIi() {
+        return ii;
     }
 
     /**
@@ -58,7 +63,7 @@ public class DSP {
         //sched.draw("schedules/LS_" + problemName, problemName, resourcesName);
 
         // store the ll and rn of nodes
-        int ii = sched.getSchedLength();
+        ii = sched.getSchedLength();
         for (int i = 0; i < ii; i++) {
             Set<Node> set = sched.nodes(i);
             for (Node n: set) {
@@ -162,9 +167,9 @@ public class DSP {
 //        System.out.format("+------+--------------------------------+--------------------------------+%n");
 //        System.out.format("|      |            column1             |              column0           |%n");
 //        System.out.format("+------+--------------------------------+--------------------------------+%n");
-
+        System.out.format("+-----+----------------------------------------------------------------+%n");
         for (int i = 1; i <= row; i++) {      //row index
-            String out1 = "row" + i;
+            String out1 = " row" + i;
             String out2 = "";
             String out3 = "";
             for (int j=1; j<col; j++) {

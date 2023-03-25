@@ -53,8 +53,10 @@ public class Main {
 		System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
 		System.out.printf("cost = %s%n", sched.cost());
 
+		System.out.printf("%nDSP%n");
 		DSP dsp = new DSP(rc);
 		dsp.schedule(g, lddg);
+		System.out.printf("ii = %d%n", dsp.getIi());
 
 
 		/* exemplary validation of a schedule */
