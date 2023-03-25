@@ -88,16 +88,9 @@ public class DSP {
         }
         lddg.add(vs);
 
-        //TODO: label all nodes with sa(cn) using longest algorithm
-//        for (Node n : lddg) {
-//            System.out.println(n.toString() + " : " + lddg.dijkstra(n));
-//        }
-
-        // new label should not be larger than 2 I think
-        // still problem with longest path algorithm
+        // label all nodes with sa(cn) using longest algorithm
         int cl = 0;// coloumn length
         for (Node n: lddg) {
-
             HashMap<Node, Integer> handledNode = new HashMap<>();
             handledNode.put(vs, 1);
             longestPath(vs, n, handledNode);
