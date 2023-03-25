@@ -7,17 +7,16 @@ public class Main {
 	public static void main(String[] args) {
 
 		RC rc = null;
-		String resourcesName = null;
+//		String resourcesName = null;
 
 		if (args.length>1){
 			System.out.println("Reading resource constraints from "+args[1]+"\n");
 			rc = new RC();
 			rc.parse(args[1]);
-			resourcesName = args[1];
+//			resourcesName = args[1];
 		}
 		
 		ProblemReader dr = new ProblemReader(true);
-		//ScheduleReader sr = new ScheduleReader();
 		if (args.length < 1) {
 			System.err.printf("Usage: scheduler dotfile%n");
 			System.exit(-1);
@@ -26,9 +25,9 @@ public class Main {
 			System.out.println();
 		}
 
-		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
+//		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
 
-		//sched.draw("schedules/SR_" + problemName, problemName, null);
+//		sched.draw("schedules/SR_" + problemName, problemName, null);
 		Graph g = dr.parse(args[0]);
 		Graph lddg = dr.parse(args[0]);
 
