@@ -18,7 +18,7 @@ public class DSP {
     /**
      *
      * @param sg    from which we construct rn
-     * @param lddg  fromn which we construct cn
+     * @param lddg  from which we construct cn
      */
     public void schedule(final Graph sg, Graph lddg) {
         rn = new HashMap<>();
@@ -89,7 +89,7 @@ public class DSP {
         lddg.add(vs);
 
         // label all nodes with sa(cn) using longest algorithm
-        int cl = 0;// coloumn length
+        int cl = 0;// column length
         for (Node n: lddg) {
             HashMap<Node, Integer> handledNode = new HashMap<>();
             handledNode.put(vs, 1);

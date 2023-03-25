@@ -34,20 +34,6 @@ public class Main {
 
 		System.out.printf("%s%n", g.diagnose());
 
-//		Scheduler s = new ASAP();
-//		Schedule sched = s.schedule(g);
-//		System.out.printf("%nASAP%n%s%n", sched.diagnose());
-//		System.out.printf("cost = %s%n", sched.cost());
-//
-//		sched.draw("schedules/ASAP_" + problemName, problemName, null);
-		
-//		s = new ALAP();
-//		sched = s.schedule(g);
-//		System.out.printf("%nALAP%n%s%n", sched.diagnose());
-//		System.out.printf("cost = %s%n", sched.cost());
-//
-//		sched.draw("schedules/ALAP_" + problemName, problemName, null);
-
 		Scheduler s = new ListScheduler(rc);
 		Schedule sched = s.schedule(g);
 		System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
