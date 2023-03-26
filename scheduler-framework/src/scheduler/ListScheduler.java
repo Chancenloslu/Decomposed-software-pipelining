@@ -87,8 +87,8 @@ public class ListScheduler extends Scheduler {
 				while(peit.hasNext()){
 					String res = peit.next();
 					if(!usedResources.containsKey(res)){
-//						int end = timeSlot + n.getDelay() - 1;
-						int end = timeSlot; //changed for DESP so all delays are like equal to one
+						int end = timeSlot + n.getDelay() - 1;
+//						int end = timeSlot; //changed for DESP so all delays are like equal to one
 						sched.add(n, new Interval(timeSlot, end),res);
 						usedResources.put(res, end);
 						nodesToRemove.add(n);
