@@ -45,14 +45,6 @@ public class Schedule {
 	}
 
 	/**
-	 * get the length of this schedule
-	 * @return length
-	 */
-	public int getSchedLength() {
-		return slots.size();
-	}
-
-	/**
 	 * Add a node and to the schedule during the given interval
 	 * @param nd - the node to be scheduled
 	 * @param i - the interval the node will be scheduled in
@@ -448,8 +440,7 @@ public class Schedule {
 							}
 							X = slot * scaleX;
 						
-						//int nodeHeight = n.getDelay() * scaleY - 1;
-						int nodeHeight = 1 * scaleY - 1;		//TODO: need to remove (just for showing result of LS of step 3)
+						int nodeHeight = n.getDelay() * scaleY - 1;
 						int nodeY = Y - nodeHeight/2;
 						int nodeWidth = 1;
 						String resourceTag = resources.get(n) != null ? resources.get(n) : "-";

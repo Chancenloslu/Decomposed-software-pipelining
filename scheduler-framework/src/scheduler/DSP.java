@@ -68,7 +68,7 @@ public class DSP {
         //sched.draw("schedules/LS_" + problemName, problemName, resourcesName);
 
         // store the ll and rn of nodes
-        ii = sched.getSchedLength();
+        ii = sched.length();
         for (int i = 0; i < ii; i++) {
             Set<Node> set = sched.nodes(i);
             for (Node n: set) {
