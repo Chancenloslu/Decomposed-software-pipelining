@@ -3,14 +3,14 @@ package scheduler;
 import java.util.*;
 
 public class DSP {
-    private RC rc;
+    private Scheduler s;
     HashMap<Node, Integer> rn;
     HashMap<Node, Integer> cn;
     Integer ii;
 
     Integer depth;
-    public DSP(RC rc) {
-        this.rc = rc;
+    public DSP(Scheduler s) {
+        this.s = s;
     }
 
     public Integer getIi() {
@@ -60,7 +60,6 @@ public class DSP {
             }
         }
 
-        Scheduler s = new ListScheduler(rc);
         Schedule sched = s.schedule(sg);
         //System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
         //System.out.printf("cost = %s%n", sched.cost());

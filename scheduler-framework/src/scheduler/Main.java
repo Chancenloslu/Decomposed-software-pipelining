@@ -39,7 +39,7 @@ public class Main {
 		System.out.printf("cost = %s%n", sched.cost());
 
 		System.out.printf("%nDSP%n");
-		DSP dsp = new DSP(rc);
+		DSP dsp = new DSP(s);
 		dsp.schedule(g, lddg);
 		System.out.printf("ii = %d%n", dsp.getIi());
 		System.out.printf("depth = %d%n", dsp.getDepth());
