@@ -42,6 +42,7 @@ public class Main {
 		DSP dsp = new DSP(rc);
 		dsp.schedule(g, lddg);
 		System.out.printf("ii = %d%n", dsp.getIi());
+		System.out.printf("depth = %d%n", dsp.getDepth());
 
 
 		/* exemplary validation of a schedule */
