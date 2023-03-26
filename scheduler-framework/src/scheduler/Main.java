@@ -4,12 +4,18 @@ import java.util.*;
 
 public class Main {
 
+	private static final boolean readProblemsFromFile = false;
+
 	public static void main(String[] args) {
+
+		if (args.length < 1) {
+			System.err.printf("Usage: scheduler dotfile%n");
+			System.exit(-1);
+		}
 
 		RC rc = null;
 //		String resourcesName = null;
-
-		if (args.length>1){
+		if (args.length > 1){
 			System.out.println("Reading resource constraints from "+args[1]+"\n");
 			rc = new RC();
 			rc.parse(args[1]);
@@ -20,16 +26,17 @@ public class Main {
 		
 		ProblemReader dr = new ProblemReader(true);
 
-		if (args.length < 1) {
-			System.err.printf("Usage: scheduler dotfile%n");
-			System.exit(-1);
-		}else {
-			System.out.println("Scheduling "+args[0]);
-			System.out.println();
+		String problemGraph = "";
+		if (readProblemsFromFile) {
+			//TODO: file in reading
+		} else {
+			problemGraph = args[0];
 		}
+		System.out.println("Scheduling " + problemGraph);
+		System.out.println();
 
-		Graph g = dr.parse(args[0]);
-		Graph lddg = dr.parse(args[0]);
+		Graph g = dr.parse(problemGraph);
+		Graph lddg = dr.parse(problemGraph);
 
 		System.out.printf("%s%n", g.diagnose());
 
