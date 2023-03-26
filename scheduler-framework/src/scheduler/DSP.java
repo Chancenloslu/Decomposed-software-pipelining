@@ -7,6 +7,8 @@ public class DSP {
     HashMap<Node, Integer> rn;
     HashMap<Node, Integer> cn;
     Integer ii;
+
+    Integer depth;
     public DSP(RC rc) {
         this.rc = rc;
     }
@@ -15,6 +17,9 @@ public class DSP {
         return ii;
     }
 
+    public Integer getDepth() {
+        return depth;
+    }
     /**
      *
      * @param sg    from which we construct rn
@@ -88,18 +93,28 @@ public class DSP {
         }
         lddg.add(vs);
 
-        // label all nodes with sa(cn) using longest algorithm
+        // label all nodes with sa/cn using longest algorithm
         int columnLength = 0;
+        for (Node n : lddg) {
+            int pathLength = longestPath(lddg, vs, n);
+            cn.put(n, pathLength);
+            if (columnLength < pathLength) {
+                columnLength = pathLength;
+            }
+        }
+        depth = columnLength;
+        /* begin old code
         for (Node n: lddg) {
             HashMap<Node, Integer> handledNode = new HashMap<>();
             handledNode.put(vs, 1);
-            longestPath(vs, n, handledNode);
+            longestPathLu(vs, n, handledNode);
             int label = handledNode.get(n);
             if (columnLength < label) {
                 columnLength = label;
             }
             cn.put(n, label);
         }
+         end old code */
 
         // form the new body
         Set<Node>[][] loop = new Set[ii][columnLength];
@@ -119,35 +134,94 @@ public class DSP {
 
     }
 
-    /**
-     *
-     * @param src   source node
-     * @param dest  destination node
-     * @param handledNodes  handled nodes for taking notes during
-     */
-    public void longestPath(Node src, Node dest, HashMap<Node, Integer> handledNodes) {
-        int res = 0;
-        int newlabel = 0;
-        if (src.allSuccessors().isEmpty())
-            return;
-        else {
-            for (Node succ: src.allSuccessors().keySet()) {
-                newlabel = succ.getPredWeight(src) + handledNodes.get(src);
-                if (!handledNodes.containsKey(succ)) {
-                    handledNodes.put(succ, newlabel);
-                } else {
-                    // not start from already handled nodes again
-                    if (newlabel > handledNodes.get(succ)) {
-                        handledNodes.put(succ, newlabel);
-                    }
+    private int longestPath(Graph lddg, Node vs, Node node) {
+        Deque<Node> dfsQueue = new ArrayDeque<>(vs.allSuccessors().keySet());
+        Deque<Node> inPath = new ArrayDeque<>();
+        inPath.add(vs);
+        int pathLength = 1;
+        int longestPath = 1;
+        Node nextNode;
+        while(true){ //TODO: maybe change to something else
+            // termination and multiple backtracking
+            nextNode = dfsQueue.peekFirst();
+            if (nextNode==null){ //termination
+                break;
+            } else { //for multiple backtrackings
+                if (! inPath.peekLast().allSuccessors().keySet().contains(nextNode)){
+                    Node lastNode = inPath.removeLast();
+                    pathLength -= inPath.peekLast().getSuccWeight(lastNode);
                     continue;
                 }
-                if (succ.equals(dest))
-                    return;
-                longestPath(succ, dest, handledNodes);
+            }
+            // pop next node from queue
+            nextNode = dfsQueue.removeFirst();
+
+            // add edge to this node to path and add node to inPath
+            int edgeWeight = 0; //TODO combine with next line
+            edgeWeight = inPath.peekLast().getSuccWeight(nextNode);
+            inPath.addLast(nextNode);
+            pathLength += edgeWeight;
+
+            // test to see if terminal node. if, then backtrack
+            if (nextNode == node){
+                if (pathLength > longestPath){
+                    longestPath = pathLength;
+                }
+                inPath.removeLast();
+                pathLength -= edgeWeight;
+                continue;
+            }
+
+            // add successors of node to queue if they are not already in current path
+//            HashSet<Node> successors = nextNode.successors();
+            Set<Node> successors = nextNode.allSuccessors().keySet();
+            boolean noSuccessor = true;
+            for(Node succ : successors){
+                if(!inPath.contains(succ)){
+                    noSuccessor = false;
+                    dfsQueue.addFirst(succ);
+                }
+            }
+
+            // if no successors backtrack
+            if (noSuccessor) {
+                inPath.removeLast();
+                pathLength -= edgeWeight;
+                continue;
             }
         }
+        return longestPath; //TODO: if finished returning weight
     }
+
+//    /**
+//     *
+//     * @param src   source node
+//     * @param dest  destination node
+//     * @param handledNodes  handled nodes for taking notes during
+//     */
+//    public void longestPathLu(Node src, Node dest, HashMap<Node, Integer> handledNodes) {
+//        int res = 0;
+//        int newlabel = 0;
+//        if (src.allSuccessors().isEmpty())
+//            return;
+//        else {
+//            for (Node succ: src.allSuccessors().keySet()) {
+//                newlabel = succ.getPredWeight(src) + handledNodes.get(src);
+//                if (!handledNodes.containsKey(succ)) {
+//                    handledNodes.put(succ, newlabel);
+//                } else {
+//                    // not start from already handled nodes again
+//                    if (newlabel > handledNodes.get(succ)) {
+//                        handledNodes.put(succ, newlabel);
+//                    }
+//                    continue;
+//                }
+//                if (succ.equals(dest))
+//                    return;
+//                longestPathLu(succ, dest, handledNodes);
+//            }
+//        }
+//    }
 
     private void loopPrint (Set<Node>[][] loop) {
         int row = loop.length;
