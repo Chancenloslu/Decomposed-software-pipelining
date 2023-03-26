@@ -1,10 +1,11 @@
 package scheduler;
 
+import java.io.*;
 import java.util.*;
 
 public class Main {
 
-	private static final boolean readProblemsFromFile = false;
+	private static final String writeOutFile = "evaluation.csv";
 
 	public static void main(String[] args) {
 
@@ -14,24 +15,22 @@ public class Main {
 		}
 
 		RC rc = null;
-//		String resourcesName = null;
+		String resourcePath = null;
 		if (args.length > 1){
-			System.out.println("Reading resource constraints from "+args[1]+"\n");
+			resourcePath = args[1];
+			System.out.println("Reading resource constraints from "+  resourcePath + "\n");
 			rc = new RC();
-			rc.parse(args[1]);
-//			resourcesName = args[1];
+			rc.parse(resourcePath);
 		}
+		String resourceName = resourcePath.substring(resourcePath.lastIndexOf("/")+1);
 
 		Scheduler s = new ListScheduler(rc);
 		
 		ProblemReader dr = new ProblemReader(true);
 
 		String problemGraph = "";
-		if (readProblemsFromFile) {
-			//TODO: file in reading
-		} else {
-			problemGraph = args[0];
-		}
+		problemGraph = args[0];
+		String problemName = problemGraph.substring(problemGraph.lastIndexOf("/")+1);
 		System.out.println("Scheduling " + problemGraph);
 		System.out.println();
 
@@ -50,6 +49,24 @@ public class Main {
 		System.out.printf("ii = %d%n", dsp.getIi());
 		System.out.printf("depth = %d%n", dsp.getDepth());
 
+		BufferedWriter w;
+		File out = new File(writeOutFile);
+		try {
+			w = new BufferedWriter(new FileWriter(out, true));
+			if (!out.exists() || out.length() == 0 ) {
+				w.write(resourceName + ",,");
+				w.newLine();
+				w.write("problemGraph,ii,depth");
+				w.newLine();
+				w.flush();
+			}
+			w.append(problemName).append(",").append(dsp.getIi().toString()).append(",").append(dsp.getDepth().toString());
+			w.newLine();
+			w.close();
+		} catch (IOException e) {
+			System.out.println("File: " + writeOutFile + " is not existing.");
+			throw new RuntimeException(e);
+		}
 
 		/* exemplary validation of a schedule */
 
