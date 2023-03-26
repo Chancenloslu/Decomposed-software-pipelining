@@ -61,10 +61,6 @@ public class DSP {
         }
 
         Schedule sched = s.schedule(sg);
-        //System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
-        //System.out.printf("cost = %s%n", sched.cost());
-
-        //sched.draw("schedules/LS_" + problemName, problemName, resourcesName);
 
         // store the ll and rn of nodes
         ii = sched.length();
@@ -172,7 +168,6 @@ public class DSP {
             }
 
             // add successors of node to queue if they are not already in current path
-//            HashSet<Node> successors = nextNode.successors();
             Set<Node> successors = nextNode.allSuccessors().keySet();
             boolean noSuccessor = true;
             for(Node succ : successors){
