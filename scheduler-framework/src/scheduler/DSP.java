@@ -126,7 +126,7 @@ public class DSP {
             }
         }
         loopPrint(loop);
-
+        System.out.println("breakpoint"); //TODO: delete!
     }
 
     private int longestPath(Graph lddg, Node vs, Node node) {
@@ -218,10 +218,10 @@ public class DSP {
 //    }
 
     private void loopPrint (Set<Node>[][] loop) {
-        int row = loop.length;
-        int col = loop[0].length;
+        int noOfRows = loop.length;
+        int noOfColumns = loop[0].length;
         String leftAlignFormat = "| %-4s ";
-        for (int i=0; i<col; i++)
+        for (int i=0; i<noOfColumns; i++)
             leftAlignFormat += "| %-30s ";
         leftAlignFormat += "|%n";
 
@@ -229,16 +229,29 @@ public class DSP {
 //        System.out.format("|      |            column1             |              column0           |%n");
 //        System.out.format("+------+--------------------------------+--------------------------------+%n");
         System.out.format("+-----+----------------------------------------------------------------+%n");
-        for (int i = 1; i <= row; i++) {      //row index
+        for (int i = 1; i <= noOfRows; i++) {      //row index
             String out1 = " row" + i;
             String out2 = "";
             String out3 = "";
-            for (int j=1; j<col; j++) {
-                for (Node n : loop[i - 1][j - 1])
-                    out2 += n.toString() + ",";
-                out2 += "\t| ";
+            for (int j=noOfColumns; j>=1; j--) {
+                Set<Node> nodes = loop[i - 1][j - 1];
+                int noNodes = nodes.size();
+                if (noNodes == 0){
+                    out3 = "   ";
+                } else {
+                    Iterator<Node> nodeIterator = nodes.iterator();
+                    while (true) {
+                        out3 += nodeIterator.next().toString();
+                        if (nodeIterator.hasNext()){
+                            out3 += ",";
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                out3 += "\t| ";
             }
-            System.out.println(out1 + " | " + out2);
+            System.out.println(out1 + " | " + out3);
         }
 //        System.out.format("+------+--------------------------------+--------------------------------+%n");
     }
