@@ -3,12 +3,13 @@ package scheduler;
 import java.util.*;
 
 public class DSP {
-    private Scheduler s;
+    private final Scheduler s;
     HashMap<Node, Integer> rn;
     HashMap<Node, Integer> cn;
     Integer ii;
 
     Integer depth;
+
     public DSP(Scheduler s) {
         this.s = s;
     }
@@ -20,6 +21,7 @@ public class DSP {
     public Integer getDepth() {
         return depth;
     }
+
     /**
      *
      * @param sg    from which we construct rn
@@ -32,9 +34,6 @@ public class DSP {
         Tarjans tarjans = new Tarjans();
         ArrayList<Set<Node>> sccs = tarjans.findSCCs(sg);
 
-        Set<Node> nodes = sg.getNodes(); //TODO:remove (used for debugging)
-
-        //TODO add a data structure to save index shift (needed for LDDG)
         for (int i=0; i < sccs.size()-1; i++){
             // the SCC from which to remove edges
             Set<Node> sccCompare = sccs.get(i);
@@ -91,25 +90,13 @@ public class DSP {
         // label all nodes with sa/cn using longest algorithm
         int columnLength = 0;
         for (Node n : lddg) {
-            int pathLength = longestPath(lddg, vs, n);
+            int pathLength = longestPath(vs, n);
             cn.put(n, pathLength);
             if (columnLength < pathLength) {
                 columnLength = pathLength;
             }
         }
         depth = columnLength;
-        /* begin old code
-        for (Node n: lddg) {
-            HashMap<Node, Integer> handledNode = new HashMap<>();
-            handledNode.put(vs, 1);
-            longestPathLu(vs, n, handledNode);
-            int label = handledNode.get(n);
-            if (columnLength < label) {
-                columnLength = label;
-            }
-            cn.put(n, label);
-        }
-         end old code */
 
         // form the new body
         Set<Node>[][] loop = new Set[ii][columnLength];
@@ -128,20 +115,28 @@ public class DSP {
         printOut(loop);
     }
 
-    private int longestPath(Graph lddg, Node vs, Node node) {
+    /**
+     * calculate longest path between two nodes of a graph.
+     * nodes have to be in same graph.
+     *
+     * @param vs   start node
+     * @param node end node
+     * @return length of path
+     */
+    private int longestPath(Node vs, Node node) {
         Deque<Node> dfsQueue = new ArrayDeque<>(vs.allSuccessors().keySet());
         Deque<Node> inPath = new ArrayDeque<>();
         inPath.add(vs);
         int pathLength = 1;
         int longestPath = 1;
         Node nextNode;
-        while(true){ //TODO: maybe change to something else
+        while(true){
             // termination and multiple backtracking
             nextNode = dfsQueue.peekFirst();
             if (nextNode==null){ //termination
                 break;
             } else { //for multiple backtrackings
-                if (! inPath.peekLast().allSuccessors().keySet().contains(nextNode)){
+                if (! inPath.peekLast().allSuccessors().containsKey(nextNode)){
                     Node lastNode = inPath.removeLast();
                     pathLength -= inPath.peekLast().getSuccWeight(lastNode);
                     continue;
@@ -151,8 +146,7 @@ public class DSP {
             nextNode = dfsQueue.removeFirst();
 
             // add edge to this node to path and add node to inPath
-            int edgeWeight = 0; //TODO combine with next line
-            edgeWeight = inPath.peekLast().getSuccWeight(nextNode);
+            int edgeWeight = inPath.peekLast().getSuccWeight(nextNode);
             inPath.addLast(nextNode);
             pathLength += edgeWeight;
 
@@ -183,43 +177,18 @@ public class DSP {
                 continue;
             }
         }
-        return longestPath; //TODO: if finished returning weight
+        return longestPath;
     }
 
-//    /**
-//     *
-//     * @param src   source node
-//     * @param dest  destination node
-//     * @param handledNodes  handled nodes for taking notes during
-//     */
-//    public void longestPathLu(Node src, Node dest, HashMap<Node, Integer> handledNodes) {
-//        int res = 0;
-//        int newlabel = 0;
-//        if (src.allSuccessors().isEmpty())
-//            return;
-//        else {
-//            for (Node succ: src.allSuccessors().keySet()) {
-//                newlabel = succ.getPredWeight(src) + handledNodes.get(src);
-//                if (!handledNodes.containsKey(succ)) {
-//                    handledNodes.put(succ, newlabel);
-//                } else {
-//                    // not start from already handled nodes again
-//                    if (newlabel > handledNodes.get(succ)) {
-//                        handledNodes.put(succ, newlabel);
-//                    }
-//                    continue;
-//                }
-//                if (succ.equals(dest))
-//                    return;
-//                longestPathLu(succ, dest, handledNodes);
-//            }
-//        }
-//    }
-
+    /**
+     * print out the result of dsp to stdout.
+     * @param loop the 2D array of set of nodes to print
+     */
     private void printOut(Set<Node>[][] loop) {
         int noOfRows = loop.length;
         int noOfColumns = loop[0].length;
 
+        // generate strings from nodes
         String[][] loopPrintOuts = new String[noOfRows][noOfColumns];
         int[] columnWidth = new int[noOfColumns];
         for (int i = 0; i < noOfRows; i++) {
@@ -239,6 +208,8 @@ public class DSP {
                 }
             }
         }
+
+        //build strings
         StringBuilder hline = new StringBuilder("-");
         StringBuilder header = new StringBuilder(" ");
         for (int i = 0; i < "row".length() + Integer.toString(noOfRows).length(); i++){
@@ -254,9 +225,14 @@ public class DSP {
             }
             hline.append("-+");
             header.append(" ");
-            header.append(String.format("%"+columnWidth[i]+"s", "c"+Integer.toString(i+1)));
+            if (columnWidth[i] != 0) {
+                header.append(String.format("%"+columnWidth[i]+"s", "c"+Integer.toString(i+1)));
+            }
             header.append(" |");
         }
+
+        // output
+        System.out.println();
         System.out.println(header);
         System.out.println(hline);
         for (int i = 0; i < noOfRows; i++) {
@@ -265,7 +241,9 @@ public class DSP {
             row.append(" |");
             for (int j = noOfColumns-1; j >= 0; j--) {
                 row.append(" ");
-                row.append( String.format("%" + columnWidth[j] + "s", loopPrintOuts[i][j]) );
+                if (columnWidth[j] != 0) {
+                    row.append(String.format("%" + columnWidth[j] + "s", loopPrintOuts[i][j]));
+                }
                 row.append(" |");
             }
             System.out.println(row);
