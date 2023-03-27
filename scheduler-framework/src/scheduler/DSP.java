@@ -220,6 +220,52 @@ public class DSP {
     private void loopPrint (Set<Node>[][] loop) {
         int noOfRows = loop.length;
         int noOfColumns = loop[0].length;
+
+        String[][] loopPrintOuts = new String[noOfRows][noOfColumns];
+        int[] columnWidth = new int[noOfColumns];
+        for (int i = 0; i < noOfRows; i++) {
+            for (int j = 0; j < noOfColumns; j++) {
+                Set<Node> nodes = loop[i][j];
+                Iterator<Node> nodeIterator = nodes.iterator();
+                StringBuilder cell = new StringBuilder();
+                while (nodeIterator.hasNext()) {
+                    cell.append(nodeIterator.next().toString());
+                    if (nodeIterator.hasNext()){
+                        cell.append(",");
+                    }
+                }
+                loopPrintOuts[i][j] = cell.toString();
+                if (loopPrintOuts[i][j].length() > columnWidth[j]){
+                    columnWidth[j] = loopPrintOuts[i][j].length();
+                }
+            }
+        }
+        StringBuilder hline = new StringBuilder("+");
+        for (int i = 0; i < "row".length() + Integer.toString(noOfRows).length(); i++){
+            hline.append("-");
+        }
+        hline.append("-+");
+        for (int i = noOfColumns-1; i >= 0; i--){
+            hline.append("-");
+            for (int j = 0; j < columnWidth[i]; j++){
+                hline.append("-");
+            }
+            hline.append("-+");
+        }
+        System.out.println(hline);
+        for (int i = 0; i < noOfRows; i++) {
+            StringBuilder row = new StringBuilder(" ");
+            row.append( String.format("row%-" + Integer.toString(noOfRows).length() + "d", i+1) );
+            row.append(" |");
+            for (int j = noOfColumns-1; j >= 0; j--) {
+                row.append(" ");
+                row.append( String.format("%" + columnWidth[j] + "s", loopPrintOuts[i][j]) );
+                row.append(" |");
+            }
+            System.out.println(row);
+        }
+        System.out.println(hline);
+
         String leftAlignFormat = "| %-4s ";
         for (int i=0; i<noOfColumns; i++)
             leftAlignFormat += "| %-30s ";
@@ -237,11 +283,11 @@ public class DSP {
                 Set<Node> nodes = loop[i - 1][j - 1];
                 int noNodes = nodes.size();
                 if (noNodes == 0){
-                    out3 = "   ";
+                    out2 = "   ";
                 } else {
                     Iterator<Node> nodeIterator = nodes.iterator();
                     while (true) {
-                        out3 += nodeIterator.next().toString();
+                        out2 += nodeIterator.next().toString();
                         if (nodeIterator.hasNext()){
                             out3 += ",";
                         } else {
@@ -249,9 +295,9 @@ public class DSP {
                         }
                     }
                 }
-                out3 += "\t| ";
+                out2 += "\t| ";
             }
-            System.out.println(out1 + " | " + out3);
+            System.out.println(out1 + " | " + out2);
         }
 //        System.out.format("+------+--------------------------------+--------------------------------+%n");
     }
