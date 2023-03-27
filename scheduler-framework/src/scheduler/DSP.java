@@ -116,7 +116,7 @@ public class DSP {
     }
 
     /**
-     * calculate longest path between two nodes of a graph.
+     * calculate the longest path between two nodes of a graph.
      * nodes have to be in same graph.
      *
      * @param vs   start node
