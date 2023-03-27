@@ -1,65 +1,88 @@
 package scheduler;
 
+import java.io.*;
 import java.util.*;
 
 public class Main {
 
+	private static final String writeOutFile = "evaluation.csv";
+
 	public static void main(String[] args) {
 
-		RC rc = null;
-//		String resourcesName = null;
-
-		if (args.length>1){
-			System.out.println("Reading resource constraints from "+args[1]+"\n");
-			rc = new RC();
-			rc.parse(args[1]);
-//			resourcesName = args[1];
-		}
-		
-		ProblemReader dr = new ProblemReader(true);
 		if (args.length < 1) {
 			System.err.printf("Usage: scheduler dotfile%n");
 			System.exit(-1);
-		}else {
-			System.out.println("Scheduling "+args[0]);
-			System.out.println();
 		}
 
-//		String problemName = args[0].substring(args[0].lastIndexOf("/")+1);
+		RC rc = null;
+		String resourcePath = null;
+		if (args.length > 1){
+			resourcePath = args[1];
+			System.out.println("Reading resource constraints from "+  resourcePath + "\n");
+			rc = new RC();
+			rc.parse(resourcePath);
+		}
+		String resourceName = resourcePath.substring(resourcePath.lastIndexOf("/")+1);
 
-//		sched.draw("schedules/SR_" + problemName, problemName, null);
-		Graph g = dr.parse(args[0]);
-		Graph lddg = dr.parse(args[0]);
+		Scheduler s = new ListScheduler(rc);
+		
+		ProblemReader dr = new ProblemReader(true);
+
+		String problemGraph = "";
+		problemGraph = args[0];
+		String problemName = problemGraph.substring(problemGraph.lastIndexOf("/")+1);
+		System.out.println("Scheduling " + problemGraph);
+		System.out.println();
+
+		Graph g = dr.parse(problemGraph);
+		Graph lddg = dr.parse(problemGraph);
 
 		System.out.printf("%s%n", g.diagnose());
 
-		Scheduler s = new ListScheduler(rc);
-		Schedule sched = s.schedule(g);
-		System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
-		System.out.printf("cost = %s%n", sched.cost());
+//		Schedule sched = s.schedule(g);
+//		System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
+//		System.out.printf("cost = %s%n", sched.cost());
 
 		System.out.printf("%nDSP%n");
-		DSP dsp = new DSP(rc);
+		DSP dsp = new DSP(s);
 		dsp.schedule(g, lddg);
 		System.out.printf("ii = %d%n", dsp.getIi());
 		System.out.printf("depth = %d%n", dsp.getDepth());
 
+		BufferedWriter w;
+		File out = new File(writeOutFile);
+		try {
+			w = new BufferedWriter(new FileWriter(out, true));
+			if (!out.exists() || out.length() == 0 ) {
+				w.write(resourceName + ",,");
+				w.newLine();
+				w.write("problemGraph,ii,depth");
+				w.newLine();
+				w.flush();
+			}
+			w.append(problemName).append(",").append(dsp.getIi().toString()).append(",").append(dsp.getDepth().toString());
+			w.newLine();
+			w.close();
+		} catch (IOException e) {
+			System.out.println("File: " + writeOutFile + " is not existing.");
+			throw new RuntimeException(e);
+		}
 
 		/* exemplary validation of a schedule */
 
-		Node conflictingNode = sched.validateDependencies();
-		if (conflictingNode != null) {
-			System.out.println("Schedule validation failed. First conflicting node: " + conflictingNode.id);
-		} else {
-			System.out.println("Dependency validation successful.");
-		}
+//		Node conflictingNode = sched.validateDependencies();
+//		if (conflictingNode != null) {
+//			System.out.println("Schedule validation failed. First conflicting node: " + conflictingNode.id);
+//		} else {
+//			System.out.println("Dependency validation successful.");
+//		}
+//
+//		Node overusingNode = sched.validateResources();
+//		if (overusingNode != null) {
+//			System.out.println("Resource usage validation failed. First overuse by node " + overusingNode.id);
+//		} else {
+//			System.out.println("Resource usage validation successful.");
+//		}
 
-		Node overusingNode = sched.validateResources();
-		if (overusingNode != null) {
-			System.out.println("Resource usage validation failed. First overuse by node " + overusingNode.id);
-		} else {
-			System.out.println("Resource usage validation successful.");
-		}
-
-}
+	}
 }

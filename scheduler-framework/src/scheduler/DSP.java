@@ -3,14 +3,14 @@ package scheduler;
 import java.util.*;
 
 public class DSP {
-    private RC rc;
+    private Scheduler s;
     HashMap<Node, Integer> rn;
     HashMap<Node, Integer> cn;
     Integer ii;
 
     Integer depth;
-    public DSP(RC rc) {
-        this.rc = rc;
+    public DSP(Scheduler s) {
+        this.s = s;
     }
 
     public Integer getIi() {
@@ -60,12 +60,7 @@ public class DSP {
             }
         }
 
-        Scheduler s = new ListScheduler(rc);
         Schedule sched = s.schedule(sg);
-        //System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
-        //System.out.printf("cost = %s%n", sched.cost());
-
-        //sched.draw("schedules/LS_" + problemName, problemName, resourcesName);
 
         // store the ll and rn of nodes
         ii = sched.length();
@@ -130,8 +125,7 @@ public class DSP {
                 loop[row][col].add(n);
             }
         }
-        loopPrint(loop);
-
+        printOut(loop);
     }
 
     private int longestPath(Graph lddg, Node vs, Node node) {
@@ -173,7 +167,6 @@ public class DSP {
             }
 
             // add successors of node to queue if they are not already in current path
-//            HashSet<Node> successors = nextNode.successors();
             Set<Node> successors = nextNode.allSuccessors().keySet();
             boolean noSuccessor = true;
             for(Node succ : successors){
@@ -223,29 +216,60 @@ public class DSP {
 //        }
 //    }
 
-    private void loopPrint (Set<Node>[][] loop) {
-        int row = loop.length;
-        int col = loop[0].length;
-        String leftAlignFormat = "| %-4s ";
-        for (int i=0; i<col; i++)
-            leftAlignFormat += "| %-30s ";
-        leftAlignFormat += "|%n";
+    private void printOut(Set<Node>[][] loop) {
+        int noOfRows = loop.length;
+        int noOfColumns = loop[0].length;
 
-//        System.out.format("+------+--------------------------------+--------------------------------+%n");
-//        System.out.format("|      |            column1             |              column0           |%n");
-//        System.out.format("+------+--------------------------------+--------------------------------+%n");
-        System.out.format("+-----+----------------------------------------------------------------+%n");
-        for (int i = 1; i <= row; i++) {      //row index
-            String out1 = " row" + i;
-            String out2 = "";
-            String out3 = "";
-            for (int j=1; j<col; j++) {
-                for (Node n : loop[i - 1][j - 1])
-                    out2 += n.toString() + ",";
-                out2 += "\t| ";
+        String[][] loopPrintOuts = new String[noOfRows][noOfColumns];
+        int[] columnWidth = new int[noOfColumns];
+        for (int i = 0; i < noOfRows; i++) {
+            for (int j = 0; j < noOfColumns; j++) {
+                Set<Node> nodes = loop[i][j];
+                Iterator<Node> nodeIterator = nodes.iterator();
+                StringBuilder cell = new StringBuilder();
+                while (nodeIterator.hasNext()) {
+                    cell.append(nodeIterator.next().toString());
+                    if (nodeIterator.hasNext()){
+                        cell.append(",");
+                    }
+                }
+                loopPrintOuts[i][j] = cell.toString();
+                if (loopPrintOuts[i][j].length() > columnWidth[j]){
+                    columnWidth[j] = loopPrintOuts[i][j].length();
+                }
             }
-            System.out.println(out1 + " | " + out2);
         }
-//        System.out.format("+------+--------------------------------+--------------------------------+%n");
+        StringBuilder hline = new StringBuilder("-");
+        StringBuilder header = new StringBuilder(" ");
+        for (int i = 0; i < "row".length() + Integer.toString(noOfRows).length(); i++){
+            hline.append("-");
+            header.append(" ");
+        }
+        hline.append("-+");
+        header.append(" |");
+        for (int i = noOfColumns-1; i >= 0; i--){
+            hline.append("-");
+            for (int j = 0; j < columnWidth[i]; j++){
+                hline.append("-");
+            }
+            hline.append("-+");
+            header.append(" ");
+            header.append(String.format("%"+columnWidth[i]+"s", "c"+Integer.toString(i+1)));
+            header.append(" |");
+        }
+        System.out.println(header);
+        System.out.println(hline);
+        for (int i = 0; i < noOfRows; i++) {
+            StringBuilder row = new StringBuilder(" ");
+            row.append( String.format("row%-" + Integer.toString(noOfRows).length() + "d", i+1) );
+            row.append(" |");
+            for (int j = noOfColumns-1; j >= 0; j--) {
+                row.append(" ");
+                row.append( String.format("%" + columnWidth[j] + "s", loopPrintOuts[i][j]) );
+                row.append(" |");
+            }
+            System.out.println(row);
+        }
+        System.out.println(hline);
     }
 }
