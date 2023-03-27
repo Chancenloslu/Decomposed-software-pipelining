@@ -119,14 +119,14 @@ public class DSP {
      * calculate the longest path between two nodes of a graph.
      * nodes have to be in same graph.
      *
-     * @param vs   start node
-     * @param node end node
-     * @return length of path
+     * @param s start node
+     * @param e end node
+     * @return length of longest path
      */
-    private int longestPath(Node vs, Node node) {
-        Deque<Node> dfsQueue = new ArrayDeque<>(vs.allSuccessors().keySet());
+    private int longestPath(Node s, Node e) {
+        Deque<Node> dfsQueue = new ArrayDeque<>(s.allSuccessors().keySet());
         Deque<Node> inPath = new ArrayDeque<>();
-        inPath.add(vs);
+        inPath.add(s);
         int pathLength = 1;
         int longestPath = 1;
         Node nextNode;
@@ -151,7 +151,7 @@ public class DSP {
             pathLength += edgeWeight;
 
             // test to see if terminal node. if, then backtrack
-            if (nextNode == node){
+            if (nextNode == e){
                 if (pathLength > longestPath){
                     longestPath = pathLength;
                 }
