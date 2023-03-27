@@ -23,9 +23,11 @@ public class DSP {
     }
 
     /**
+     * run decomposed software pipelining.
+     * graph sg and graph lddg have to be the same graph.
      *
-     * @param sg    from which we construct rn
-     * @param lddg  from which we construct cn
+     * @param sg    graph from which we construct rn
+     * @param lddg  graph from which we construct cn
      */
     public void schedule(final Graph sg, Graph lddg) {
         rn = new HashMap<>();
