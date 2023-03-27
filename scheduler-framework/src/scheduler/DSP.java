@@ -125,8 +125,7 @@ public class DSP {
                 loop[row][col].add(n);
             }
         }
-        loopPrint(loop);
-        System.out.println("breakpoint"); //TODO: delete!
+        printOut(loop);
     }
 
     private int longestPath(Graph lddg, Node vs, Node node) {
@@ -217,7 +216,7 @@ public class DSP {
 //        }
 //    }
 
-    private void loopPrint (Set<Node>[][] loop) {
+    private void printOut(Set<Node>[][] loop) {
         int noOfRows = loop.length;
         int noOfColumns = loop[0].length;
 
@@ -240,18 +239,25 @@ public class DSP {
                 }
             }
         }
-        StringBuilder hline = new StringBuilder("+");
+        StringBuilder hline = new StringBuilder("-");
+        StringBuilder header = new StringBuilder(" ");
         for (int i = 0; i < "row".length() + Integer.toString(noOfRows).length(); i++){
             hline.append("-");
+            header.append(" ");
         }
         hline.append("-+");
+        header.append(" |");
         for (int i = noOfColumns-1; i >= 0; i--){
             hline.append("-");
             for (int j = 0; j < columnWidth[i]; j++){
                 hline.append("-");
             }
             hline.append("-+");
+            header.append(" ");
+            header.append(String.format("%"+columnWidth[i]+"s", "c"+Integer.toString(i+1)));
+            header.append(" |");
         }
+        System.out.println(header);
         System.out.println(hline);
         for (int i = 0; i < noOfRows; i++) {
             StringBuilder row = new StringBuilder(" ");
@@ -265,40 +271,5 @@ public class DSP {
             System.out.println(row);
         }
         System.out.println(hline);
-
-        String leftAlignFormat = "| %-4s ";
-        for (int i=0; i<noOfColumns; i++)
-            leftAlignFormat += "| %-30s ";
-        leftAlignFormat += "|%n";
-
-//        System.out.format("+------+--------------------------------+--------------------------------+%n");
-//        System.out.format("|      |            column1             |              column0           |%n");
-//        System.out.format("+------+--------------------------------+--------------------------------+%n");
-        System.out.format("+-----+----------------------------------------------------------------+%n");
-        for (int i = 1; i <= noOfRows; i++) {      //row index
-            String out1 = " row" + i;
-            String out2 = "";
-            String out3 = "";
-            for (int j=noOfColumns; j>=1; j--) {
-                Set<Node> nodes = loop[i - 1][j - 1];
-                int noNodes = nodes.size();
-                if (noNodes == 0){
-                    out2 = "   ";
-                } else {
-                    Iterator<Node> nodeIterator = nodes.iterator();
-                    while (true) {
-                        out2 += nodeIterator.next().toString();
-                        if (nodeIterator.hasNext()){
-                            out3 += ",";
-                        } else {
-                            break;
-                        }
-                    }
-                }
-                out2 += "\t| ";
-            }
-            System.out.println(out1 + " | " + out2);
-        }
-//        System.out.format("+------+--------------------------------+--------------------------------+%n");
     }
 }
