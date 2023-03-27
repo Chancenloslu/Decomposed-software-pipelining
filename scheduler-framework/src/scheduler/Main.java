@@ -5,7 +5,8 @@ import java.util.*;
 
 public class Main {
 
-	private static final String writeOutFile = "evaluation.csv";
+	// used for writing out results to file for evaluation
+//	private static final String writeOutFile = "evaluation.csv";
 
 	public static void main(String[] args) {
 
@@ -22,7 +23,7 @@ public class Main {
 			rc = new RC();
 			rc.parse(resourcePath);
 		}
-		String resourceName = resourcePath.substring(resourcePath.lastIndexOf("/")+1);
+//		String resourceName = resourcePath.substring(resourcePath.lastIndexOf("/")+1); // used for evaluation
 
 		Scheduler s = new ListScheduler(rc);
 		
@@ -30,7 +31,7 @@ public class Main {
 
 		String problemGraph = "";
 		problemGraph = args[0];
-		String problemName = problemGraph.substring(problemGraph.lastIndexOf("/")+1);
+//		String problemName = problemGraph.substring(problemGraph.lastIndexOf("/")+1); // used for evaluation
 		System.out.println("Scheduling " + problemGraph);
 		System.out.println();
 
@@ -39,16 +40,14 @@ public class Main {
 
 		System.out.printf("%s%n", g.diagnose());
 
-//		Schedule sched = s.schedule(g);
-//		System.out.printf("%nList Scheduler%n%s%n", sched.diagnose());
-//		System.out.printf("cost = %s%n", sched.cost());
-
 		System.out.printf("%nDSP%n");
 		DSP dsp = new DSP(s);
 		dsp.schedule(g, lddg);
 		System.out.printf("ii = %d%n", dsp.getIi());
 		System.out.printf("depth = %d%n", dsp.getDepth());
 
+		// write out results of schedule to file for evaluation
+		/*
 		BufferedWriter w;
 		File out = new File(writeOutFile);
 		try {
@@ -67,22 +66,6 @@ public class Main {
 			System.out.println("File: " + writeOutFile + " is not existing.");
 			throw new RuntimeException(e);
 		}
-
-		/* exemplary validation of a schedule */
-
-//		Node conflictingNode = sched.validateDependencies();
-//		if (conflictingNode != null) {
-//			System.out.println("Schedule validation failed. First conflicting node: " + conflictingNode.id);
-//		} else {
-//			System.out.println("Dependency validation successful.");
-//		}
-//
-//		Node overusingNode = sched.validateResources();
-//		if (overusingNode != null) {
-//			System.out.println("Resource usage validation failed. First overuse by node " + overusingNode.id);
-//		} else {
-//			System.out.println("Resource usage validation successful.");
-//		}
-
+		*/
 	}
 }
